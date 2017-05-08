@@ -11,13 +11,12 @@ save(['output/simulations/', char(name)]);
 %% Batch simulate
 
 %TODO
-%
-%
 
 
-% Parameters
+
+
 clear;
-name='alpha(0.4,0.6,5)';  % Name of simulation
+name='freq(0,0.6,7)';  % Name of simulation
 
 %Make dir+dir for plots, stop if simulation exist
 dir_save= ['output/simulations/', name,'/'];
@@ -36,11 +35,10 @@ findTrueSynchronyLevel = 1; % Use slow binary search to find actual synchronizat
 synchronyLimit = 0.85;
 timeTolerance = [-0.01, 0.01];
 numberOfIterations = 1;
+ 
 
-% Variables
-
-%Responsecurve
-alphas = linspace(0.4,0.6,5);
+%Responsecurve variables
+alphas = 0.5;
 betas = 0.5;
 gammas = 0.05;
 as = 0.25;
@@ -48,21 +46,21 @@ bs = 0.5;
 
 
 
-%flies
-frequencySpreads = 0.5; %base freq + frequency spread
-phaseSpreads = 1;  % phase spread [0,1]
+%flock variables
+frequencySpreads = linspace(0,0.6,7); %base freq + frequency spread
+phaseSpreads = 1;  % starting phase [0,phasespreads]
 flockRadi = 4; % Radius of spherical flock
 flockDensities = 0.3; % Density of generated flock
 connectionThresholds = 2.5; % Distance flys can see eachother
 
-% fly
+% fly variables
 baseFrequency = 1; % base frequency of a oscillator
 deltas = [0];  % Time delay
 zetas = 0.05; % fraction of period to go blind after seeing a flash
 thaus = [0]; % fraction of period to go blind after flashing
 
-%legend=frequencySpreads;
 
+% init synchronyTime matrix
 synchronyTime = zeros([ ...
     size(frequencySpreads, 2), ...
     size(phaseSpreads, 2), ...
@@ -90,8 +88,8 @@ if findTrueSynchronyLevel
     trueSynchronyLevelResult = synchronyTime; % Again
 end
 
-%Number of simulations
-evaluations = numel(synchronyTime);
+
+evaluations = numel(synchronyTime); %Number of simulations
 counter = 0;    % Keep track of calculations done
 progressBar = waitbar(0, [num2str(counter), '/', num2str(evaluations)]);
 tic; % Initialize update timer
@@ -136,18 +134,14 @@ for frequencySpreadIndex = 1:size(frequencySpreads, 2)
                                                     a=as(aIndex);
                                                     for bIndex = 1:size(bs,2)
                                                         b=bs(bIndex);
+                                                                                                            
+                                                        clear states; clear flashes; % Free up some memory
                                                         
                                                         % Simulate
-                                                        
-                                                        clear states; clear flashes; % Free up some memory
                                                         [states, flashes] = simulateFlock(Q, G, time, dt, thau, zeta, delta, alpha, beta, gamma, a, b);
-                                                        
-                                                        %save
-                                                        save([dir_save,[name,num2str(counter,'%03d') '.mat'] ],'states');
-                                                        
+                                                                                                               
                                                         % evaluate
-                                                        
-                                                        if findTrueSynchronyLevel
+                                                                                                                if findTrueSynchronyLevel
                                                             % Determine best level of synchrony
                                                             
                                                             level = trueSynchronyLevel(states, flashes, dt, timeTolerance, 10);
@@ -176,6 +170,7 @@ for frequencySpreadIndex = 1:size(frequencySpreads, 2)
                                                             [synchronyTimeData, avgFlashesToSyncData, averageSynchronyLevelData ] = ...
                                                                 evaluateSynchrony( states, flashes, dt, synchronyLimit, timeTolerance );
                                                         end
+                                                        
                                                         % save result
                                                         synchronyTime( ...
                                                             frequencySpreadIndex, ...
@@ -278,6 +273,8 @@ for frequencySpreadIndex = 1:size(frequencySpreads, 2)
                                                             aIndex, ...
                                                             bIndex ...
                                                             ) = size(states, 2);
+                                                        %save
+                                                        save([dir_save,[name,num2str(counter,'%03d') '.mat']],'trueSynchronyLevelResult', 'synchronyTime', 'avgFlashesToSync', 'averageSynchronyLevel', 'averageConnections', 'finalAverageFrequency', 'numberOfFlies', 'states');
                                                         
                                                         counter = counter + 1;
                                                         
@@ -306,7 +303,6 @@ close(progressBar);
 
 
 
-
 %% varying connection thresholds, 2 thaus, any number of iterations
 avgTrueSynchronyLevelResult = squeeze(mean(trueSynchronyLevelResult,5));
 avgNumberOfFlies = squeeze(mean(numberOfFlies, 5));
@@ -319,9 +315,9 @@ yyaxis('left')
 plot(connectionThresholds, avgTrueSynchronyLevelResult(:, 1));
 plot(connectionThresholds, avgTrueSynchronyLevelResult(:, 2), '--'); grid on;
 ylabel('synkroniseringsgrad')
-xlabel('kopplingsavst??nd')
+xlabel('kopplingsavst?nd')
 legend('\xi = 0','\xi = 0.1','medelantal flugor', 'Location', 'southeast');
-title('Synkroniseringsgrad m.a.p kopplingsavst??nd');
+title('Synkroniseringsgrad m.a.p kopplingsavst?nd');
 
 f2 = figure()
 A = averageConnections(:,:,:,:,:,:,:,1);
@@ -351,7 +347,7 @@ plot(lim, [a, a], 'blue--');
 plot(lim, [b, b], 'red--');
 xlabel('medelantal kopplingar per oscillator');
 ylabel('slutgiltig medelfrekvens');
-legend('\xi = 0', '\xi = 0.1', 'medel f??r \xi = 0', 'medel f??r \xi = 0.1', 'Location', 'southeast');
+legend('\xi = 0', '\xi = 0.1', 'medel f?r \xi = 0', 'medel f?r \xi = 0.1', 'Location', 'southeast');
 title('Utfall av slutfrekvens m.a.p antal kopplingar');
 %% Percent success with 20 connection thresholds, 2 thaus and 25 iterations
 
@@ -373,7 +369,42 @@ plot(connectionThresholds, percentSuccess(2,:), '--'); grid on;
 %% funkar bara f?r mig
 close all
 %colors=['b', 'r', 'y', 'k', 'g', 'm', 'c'];
-plotFreqVariableParam('alpha(0.4,0.6,5)')
+plotFreqVariableParam('default_values')
+
+%%
+%   Order of color
+name='freq(0,0.6,7)';
+colors=['b', 'r', 'y', 'k', 'g', 'm', 'c','b', 'r', 'y', 'k', 'g', 'm', 'c','b', 'r', 'y', 'k', 'g', 'm', 'c','b', 'r', 'y', 'k', 'g', 'm', 'c','b', 'r', 'y', 'k', 'g', 'm', 'c' ];
+% Change directory to 'name'
+cd_str=['~/Documents/JM_Firefly_Sim/output/simulations/',name];
+if exist(cd_str, 'dir') == 7
+    cd(cd_str);
+    %lista simuleringar
+    dirs=dir;
+    dirs(3).name;
+    % (. .. pics sim1 sim2 sim3) i dir
+   % figure('Name', ['Frequencychange for oscillators' char(datetime)])
+    for i=0:size(dirs,1)-4
+        if exist(cd_str, 'dir') == 7
+            cd(cd_str);
+        end
+        load([name num2str(i,'%03d') '.mat'])
+        cd ../../..
+        scatter(frequencySpread,trueSynchronyLevel);
+        hold on
+        %plotFrequencyChange(states, colors, i)
+    end
+       
+    %cd_pics_str=[cd_str,'/pics'];
+    %cd(cd_pics_str);
+    %print(name,'-depsc','-r200');
+    %back to workspace directory
+    %cd ../../../..
+end
+
+
+
+
 
 
 

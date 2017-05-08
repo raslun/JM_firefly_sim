@@ -18,7 +18,7 @@ if exist(cd_str, 'dir') == 7
     %lista simuleringar
     dirs=dir;
     dirs(3).name;
-    % (. .. sim1 sim2 sim3) i dir
+    % (. .. pics sim1 sim2 sim3) i dir
     figure('Name', ['Frequencychange for oscillators' char(datetime)])
     for i=0:size(dirs,1)-4
         if exist(cd_str, 'dir') == 7
