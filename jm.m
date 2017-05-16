@@ -10,9 +10,9 @@ delta = 0.0; % Delay for a pulse to transmit to its neighbours
 
 %Response curve paramaters
 alpha = 0.5; 
-beta = 0.5;
-gamma = 0.05;
-a = 0.25;
+beta = 0.8;
+gamma = 0.0;
+a = 0.1;
 b = 0.25;
 
 %create flock
@@ -44,8 +44,8 @@ graphMetrics(G);
 clear states
 clear flashes
 
-dt = 1*10^-3;
-time = 6;
+dt = 1*10^-4;
+time = 10;
 
 [states, flashes] = simulateFlock(Q, G, time, dt, thau, zeta, delta, alpha, beta, gamma, a, b);
 
@@ -79,16 +79,17 @@ legendStrings = strings(size(I,1),1); % Prepare for creating a plot legend
 t = dt:dt:time;
 for i=1:size(I,1)
     [S, scores] = calculateSynchrony(states, flashes, dt, I(i,:)); % Calculate for every interval
-    legendStrings(i,:) = ['tol = ??', sprintf('%0.3f', diff(I(i,:))/2), 's']; % Append legend entry
+    legendStrings(i,:) = ['tol = ',  num2str(diff(I(i,:))/2), 's']; % Append legend entry
     plot(t(1:size(S,2)), S); hold on;
 end
+%sprintf('%0.3f',
 ylim([0,1.05]);
 xlim([0,time]);
 grid on;
 title('Godhetstal');
 xlabel('tid');
 ylabel('synkroniseringsgrad');
-legend(legendStrings, 'Location', 'southeast'); % Draw legend
+legend(legendStrings, 'Location', 'Best'); % Draw legend
 
 
 %% Utv??rdera resultat
@@ -122,7 +123,7 @@ showStateEvolution(states, dt, 1, false);
 showCircularStateEvolution(states, dt, 0.25, false);
 
 %% Visa simulering
-showSimulation(states, flashes, dt, 0.1, false, false);
+showSimulation(states, flashes, dt, 1, false, true);
 
 %% Visa en flugas detalierade tillst??nd
 figure('Name', char(datetime))

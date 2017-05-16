@@ -21,6 +21,6 @@ function [ scatter, lines, texts ] = plotFlock( Q, G )
         texts(textindex) = text(Q(i,2),Q(i,3),Q(i,4)+0.3, num2str(Q(i,1)));
         textindex = textindex + 1;
     end
-
+%, num2str(Q(i,1))
 end
 

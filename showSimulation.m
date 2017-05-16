@@ -4,7 +4,7 @@ function [ fig ] = showSimulation( states, flashes, dt, timescale, arrows, rende
     if render
         mkdir output showSimulation;
     end
-
+counter=0;
     framerate = 25;
     flash_display_time = 0.1;
     az = 45; el = 45;
@@ -82,12 +82,13 @@ function [ fig ] = showSimulation( states, flashes, dt, timescale, arrows, rende
 
             scatter_times = scatter_times - displaystep;
 
-
+            counter=counter+1;
             view(az,el);
-            title(['t=',num2str(t*dt)]);
+            title('');
+           % title(['t=',num2str(t*dt)]);
             if render
                 drawnow;
-                print(['output/showSimulation/',num2str(t)], '-djpeg');
+                print('-r400',['output/showSimulation/',sprintf('%05d',counter)], '-djpeg');
             else
                 pause(displaystep);
             end

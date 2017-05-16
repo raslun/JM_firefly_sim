@@ -35,19 +35,19 @@ findTrueSynchronyLevel = 1; % Use slow binary search to find actual synchronizat
 synchronyLimit = 0.85;
 timeTolerance = [-0.01, 0.01];
 numberOfIterations = 1;
- 
+
 
 %Responsecurve variables
 alphas = 0.5;
-betas = 0.5;
+betas = linspace(0.1,0.5,5);
 gammas = 0.05;
-as = 0.25;
-bs = 0.5;
+as = linspace(0,0.4,5);
+bs = linspace(0,0.4,5);
 
 
 
 %flock variables
-frequencySpreads = linspace(0,0.6,7); %base freq + frequency spread
+frequencySpreads = 0.5; %base freq + frequency spread
 phaseSpreads = 1;  % starting phase [0,phasespreads]
 flockRadi = 4; % Radius of spherical flock
 flockDensities = 0.3; % Density of generated flock
@@ -134,14 +134,14 @@ for frequencySpreadIndex = 1:size(frequencySpreads, 2)
                                                     a=as(aIndex);
                                                     for bIndex = 1:size(bs,2)
                                                         b=bs(bIndex);
-                                                                                                            
+                                                        
                                                         clear states; clear flashes; % Free up some memory
                                                         
                                                         % Simulate
                                                         [states, flashes] = simulateFlock(Q, G, time, dt, thau, zeta, delta, alpha, beta, gamma, a, b);
-                                                                                                               
+                                                        
                                                         % evaluate
-                                                                                                                if findTrueSynchronyLevel
+                                                        if findTrueSynchronyLevel
                                                             % Determine best level of synchrony
                                                             
                                                             level = trueSynchronyLevel(states, flashes, dt, timeTolerance, 10);
@@ -383,7 +383,7 @@ if exist(cd_str, 'dir') == 7
     dirs=dir;
     dirs(3).name;
     % (. .. pics sim1 sim2 sim3) i dir
-   % figure('Name', ['Frequencychange for oscillators' char(datetime)])
+    % figure('Name', ['Frequencychange for oscillators' char(datetime)])
     for i=0:size(dirs,1)-4
         if exist(cd_str, 'dir') == 7
             cd(cd_str);
@@ -394,7 +394,7 @@ if exist(cd_str, 'dir') == 7
         hold on
         %plotFrequencyChange(states, colors, i)
     end
-       
+    
     %cd_pics_str=[cd_str,'/pics'];
     %cd(cd_pics_str);
     %print(name,'-depsc','-r200');
@@ -403,8 +403,12 @@ if exist(cd_str, 'dir') == 7
 end
 
 
+%%
 
-
+[X,Y,Z]=meshgrid(as,bs,betas);
+BF=squeeze(averageSynchronyLevel);
+KL=reshape(BF,[size(BF,1),size(BF,2), size(BF,3)]);
+surf(X,Y,KL);
 
 
 
