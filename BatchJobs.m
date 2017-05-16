@@ -7,57 +7,83 @@ clear frequencySpread frequencySpreadIndex iteration zeta zetaIndex
 clear thau thayIndex connectionThreshold connectionThresholdIndex
 
 mkdir output simulations;
-save(['output/simulations/', char(name)]);
+save(['output/simulations/', char(name), ' manual save']);
 %% Batch simulate
 
 %TODO
+<<<<<<< HEAD
 
 
 
 
 clear;
 name='freq(0,0.6,7)';  % Name of simulation
+=======
+%
+%
+% Parameters
+
+clear;
+name='kurvskillnader';  % Name of simulation
+>>>>>>> 13571b2cc19b6400b28677594248329d7c526a4d
 
 %Make dir+dir for plots, stop if simulation exist
-dir_save= ['output/simulations/', name,'/'];
-dir_pics=[dir_save,'pics'];
-if exist(dir_save,'dir')==7
-    error('A simulation with that name already exist');
-end
-mkdir('output/simulations', name);
-mkdir(dir_pics);
+%dir_save= ['output/simulations/', name,'/'];
+%dir_pics=[dir_save,'pics'];
+%if exist(dir_save,'dir')==7
+%    error('A simulation with that name already exist');
+%end
+%mkdir('output/simulations', name);
+%mkdir(dir_pics);
 
 
 %Simulation variables
-dt = 1*10^-3;
-time = 6;
+dt = 5*10^-3;
+time = 60;
 findTrueSynchronyLevel = 1; % Use slow binary search to find actual synchronization level
 synchronyLimit = 0.85;
-timeTolerance = [-0.01, 0.01];
-numberOfIterations = 1;
+timeTolerance = [-0.025, 0.025];
+numberOfIterations = 100;
+frequencyTolerance = 0.05;
 
 
+<<<<<<< HEAD
 %Responsecurve variables
 alphas = 0.5;
 betas = linspace(0.1,0.5,5);
 gammas = 0.05;
 as = linspace(0,0.4,5);
 bs = linspace(0,0.4,5);
+=======
+%Responsecurve
+alphas = 0.5;
+betas = 0.4;
+gammas = 0;
+as = 0.2;
+bs = 0.4;
+>>>>>>> 13571b2cc19b6400b28677594248329d7c526a4d
 
 
 
 %flock variables
 frequencySpreads = 0.5; %base freq + frequency spread
+<<<<<<< HEAD
 phaseSpreads = 1;  % starting phase [0,phasespreads]
 flockRadi = 4; % Radius of spherical flock
 flockDensities = 0.3; % Density of generated flock
 connectionThresholds = 2.5; % Distance flys can see eachother
+=======
+phaseSpreads = 1;  % phase spread [0,1]
+flockRadi = 1*2*pi; % Radius of spherical flock
+flockDensities = 0.1; % Density of generated flock
+connectionThresholds = 2.75; % Distance flys can see eachother
+>>>>>>> 13571b2cc19b6400b28677594248329d7c526a4d
 
 % fly variables
 baseFrequency = 1; % base frequency of a oscillator
-deltas = [0];  % Time delay
+deltas = 0;  % Time delay
 zetas = 0.05; % fraction of period to go blind after seeing a flash
-thaus = [0]; % fraction of period to go blind after flashing
+thaus = 0; % fraction of period to go blind after flashing
 
 
 % init synchronyTime matrix
@@ -83,18 +109,29 @@ averageSynchronyLevel = synchronyTime; % Again
 averageConnections = synchronyTime; % Again
 finalAverageFrequency = synchronyTime; % Again
 numberOfFlies = synchronyTime; % Again
+finalFrequencySpread = synchronyTime; % Again
+frequencyLimitReachedTime = synchronyTime; % Again
 
 if findTrueSynchronyLevel
     trueSynchronyLevelResult = synchronyTime; % Again
 end
 
 
+<<<<<<< HEAD
 evaluations = numel(synchronyTime); %Number of simulations
 counter = 0;    % Keep track of calculations done
 progressBar = waitbar(0, [num2str(counter), '/', num2str(evaluations)]);
+=======
+counter = 0;    % Keep track of calculations done
+
+%Number of simulations
+evaluations = numel(synchronyTime);
+progressBar = waitbar(counter/evaluations, [num2str(counter), '/', num2str(evaluations)]);
+>>>>>>> 13571b2cc19b6400b28677594248329d7c526a4d
 tic; % Initialize update timer
 
 %Simulation
+% Nested loops keeping track of indexes for result vectors.
 for frequencySpreadIndex = 1:size(frequencySpreads, 2)
     frequencySpread = frequencySpreads(frequencySpreadIndex);
     for phaseSpreadIndex = 1:size(phaseSpreads, 2)
@@ -104,7 +141,8 @@ for frequencySpreadIndex = 1:size(frequencySpreads, 2)
             for flockDensityIndex = 1:size(flockDensities,2)
                 flockDensity = flockDensities(flockDensityIndex);
                 
-                
+                % No need to generate a new flock when we only vary the
+                % flies. Therefore the flock is generated here.
                 for iteration = 1:numberOfIterations
                     % Generate flock
                     Qinit = sphereFlock(flockRadius, flockDensity);
@@ -113,6 +151,8 @@ for frequencySpreadIndex = 1:size(frequencySpreads, 2)
                     Qinit(:,6) = baseFrequency+frequencySpread*rand(N,1);
                     Qinit(:,7) = zeros(N,1);
                     
+                    % When changing connection threshold only the graph
+                    % changes.
                     for connectionThresholdIndex = 1:size(connectionThresholds,2)
                         connectionThreshold = connectionThresholds(connectionThresholdIndex);
                         
@@ -137,8 +177,13 @@ for frequencySpreadIndex = 1:size(frequencySpreads, 2)
                                                         
                                                         clear states; clear flashes; % Free up some memory
                                                         
+<<<<<<< HEAD
                                                         % Simulate
                                                         [states, flashes] = simulateFlock(Q, G, time, dt, thau, zeta, delta, alpha, beta, gamma, a, b);
+=======
+                                                        %save
+                                                        %save([dir_save,[name,num2str(counter,'%03d') '.mat'] ],'states');
+>>>>>>> 13571b2cc19b6400b28677594248329d7c526a4d
                                                         
                                                         % evaluate
                                                         if findTrueSynchronyLevel
@@ -276,9 +321,52 @@ for frequencySpreadIndex = 1:size(frequencySpreads, 2)
                                                         %save
                                                         save([dir_save,[name,num2str(counter,'%03d') '.mat']],'trueSynchronyLevelResult', 'synchronyTime', 'avgFlashesToSync', 'averageSynchronyLevel', 'averageConnections', 'finalAverageFrequency', 'numberOfFlies', 'states');
                                                         
+                                                        finalFrequencySpread( ...
+                                                            frequencySpreadIndex, ...
+                                                            phaseSpreadIndex, ...
+                                                            flockRadiusIndex, ...
+                                                            flockDensityIndex, ...
+                                                            iteration, ...
+                                                            connectionThresholdIndex, ...
+                                                            zetaIndex, ...
+                                                            thauIndex, ...
+                                                            deltaIndex, ...
+                                                            alphaIndex, ...
+                                                            betaIndex, ...
+                                                            gammaIndex, ...
+                                                            aIndex, ...
+                                                            bIndex ...
+                                                            ) = max(states(end, :, 6))-min(states(end, :, 6));
+                                                        
+                                                        
+                                                        frequencyLimitReachedTime( ...
+                                                            frequencySpreadIndex, ...
+                                                            phaseSpreadIndex, ...
+                                                            flockRadiusIndex, ...
+                                                            flockDensityIndex, ...
+                                                            iteration, ...
+                                                            connectionThresholdIndex, ...
+                                                            zetaIndex, ...
+                                                            thauIndex, ...
+                                                            deltaIndex, ...
+                                                            alphaIndex, ...
+                                                            betaIndex, ...
+                                                            gammaIndex, ...
+                                                            aIndex, ...
+                                                            bIndex ...
+                                                            ) = frequencyLimitTime(states, flashes, dt, frequencyTolerance);
+
+                                                        
+                                                        if mod(counter, 1000) == 0
+                                                            name = datetime;
+                                                            save(['output/simulations/', char(name)]);
+                                                            disp('saved with name:');
+                                                            disp(name);
+                                                        end
+                                                        
                                                         counter = counter + 1;
                                                         
-                                                        if toc >= 1 % Update progress bar every second.
+                                                        if toc >= 1 % Update progress bar at most every second.
                                                             waitbar(counter/evaluations, progressBar, [num2str(counter), '/', num2str(evaluations)]);
                                                             tic;
                                                         end
@@ -301,8 +389,36 @@ for frequencySpreadIndex = 1:size(frequencySpreads, 2)
 end
 close(progressBar);
 
+% This value can be computed after the simulation
+connectionDegree = averageConnections./numberOfFlies;
 
+<<<<<<< HEAD
 
+=======
+name = datetime;
+save(['output/simulations/', char(name)]);
+disp('saved with name:')
+disp(name);
+%% grej
+[X Y] = meshgrid(connectionThresholds, flockRadi);
+Zlevel = squeeze(mean(trueSynchronyLevelResult, 5));
+contour(X, Zlevel, Y); c = colorbar;
+title('Synkronisering vs kopplingsavstånd vs flockradie');
+xlabel('Kopplingsavstånd');
+ylabel('Synkroniseringsgrad');
+ylabel(c, 'Flockens radie');
+grid on;
+
+%% varying connection thresholds, flock radius
+f3 = figure()
+E = reshape(connectionDegree, 1, numel(connectionDegree));
+F = reshape(trueSynchronyLevelResult, 1, numel(trueSynchronyLevelResult)); 
+rem = find(E > 0.15);
+E(rem) = [];
+F(rem) = [];
+hist3([E;F]',[25,25]); hold on;
+set(get(gca,'child'),'FaceColor','interp','CDataMode','auto');
+>>>>>>> 13571b2cc19b6400b28677594248329d7c526a4d
 %% varying connection thresholds, 2 thaus, any number of iterations
 avgTrueSynchronyLevelResult = squeeze(mean(trueSynchronyLevelResult,5));
 avgNumberOfFlies = squeeze(mean(numberOfFlies, 5));
@@ -411,9 +527,42 @@ KL=reshape(BF,[size(BF,1),size(BF,2), size(BF,3)]);
 surf(X,Y,KL);
 
 
+%% surf
+clear alpha;
 
+for i=1:1:size(betas,2)
+    workOn = finalAverageFrequency(:,:,:,:,:,:,:,1,:,:,i,:,:,:);
+    x = as;
+    y = bs;
 
+    mnsq = squeeze(mean(workOn,5));
+    [X, Y] = meshgrid(x, y);
+    surf(X,Y,mnsq, betas(i)*ones(size(mnsq))); hold on;
+end
 
+c = colorbar;
+xlabel('a');
+ylabel('b');
+ylabel(c,'beta');
+alpha 0.65;
 
+clear alpha;
 
+%%
+for i=2:2:size(betas,2)
+    workOn = frequencyLimitReachedTime(:,:,:,:,:,:,:,1,:,:,i,:,:,:);
+    x = as;
+    y = bs;
 
+    workOn(workOn > 14) = NaN;
+    sucrate = 100*sum(~isnan(workOn),5)/numberOfIterations;
+    sq = squeeze(sucrate);
+    [X, Y] = meshgrid(x, y);
+    surf(X,Y,sq, betas(i)*ones(size(sq))); hold on;
+end
+
+c = colorbar;
+xlabel('a');
+ylabel('b');
+ylabel(c,'beta');
+alpha 0.65;
