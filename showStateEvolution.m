@@ -2,13 +2,15 @@ function [ fig ] = showStateEvolution( states, dt, timescale, render )
 %SHOWSTATEEVOLUTION Summary of this function goes here
 %   Detailed explanation goes here
     framerate = 25;
-
+    counter=0;
     T = size(states,1);
     displaystep = 1/framerate;
     step = ceil(timescale*displaystep/dt);
     minF = min(min(states(:,:,6)));
     maxF = max(max(states(:,:,6)));
+    if render
     mkdir output showStateEvolution;    
+    end
     fig = figure();
     figure(fig);
     
@@ -30,9 +32,10 @@ function [ fig ] = showStateEvolution( states, dt, timescale, render )
         grid on;
         ylim([minF-0.5,maxF+0.5]);
         xlim([0,size(states,2)+1]);
+        counter=counter+1;
         if render
             drawnow;
-            print(['output/showStateEvolution/',sprintf('%04d',t)], '-djpeg');
+            print('-r400',['output/showStateEvolution/',sprintf('%05d',counter)], '-djpeg');
         else
             pause(displaystep);
         end
